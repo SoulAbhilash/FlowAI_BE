@@ -1,14 +1,28 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-import json
+# app/api/routes/flow.py
 
+from fastapi import APIRouter, Depends
 from app.schemas.generate_flow import GenerateFlow
+from ai_tools.app.llm.factory import LLMFactory
+from ai_tools.app.llm.parser import FlowParser
 from app.core.security import get_current_user
-from  ai_tools.app.llm.parser import FlowParser
 
 router = APIRouter(dependencies=[Depends(get_current_user)])
 
+
 @router.post("/generate_flow")
-def generate_flow(generate_flow: GenerateFlow):
-    parser = FlowParser()
-    json_flow = parser.parse(flow_name=generate_flow.flow_name, text=generate_flow.flow_steps)
-    return  json_flow
+async def generate_flow(request: GenerateFlow):
+    
+    llm = LLMFactory.create(
+        provider=request.provider,
+        model=request.model,
+        api_key=request.api_key,
+    )
+
+    parser = FlowParser(llm=llm)
+
+    json_flow = await parser.parse(
+        flow_name=request.flow_name,
+        text=request.flow_steps,
+    )
+
+    return json_flow
