@@ -1,7 +1,8 @@
 import json
 import re
 from ai_tools.app.llm.interface import LLMClient
-from ai_tools.app.llm.prompts import GENERATE_GRAPH_PROMPT
+from ai_tools.app.llm.tasks.generate_flow.prompt import GENERATE_GRAPH_PROMPT
+from ai_tools.app.llm.tasks.generate_flow.schema import Graph
 
 
 class FlowParser:
@@ -16,8 +17,7 @@ Flow name: {flow_name}
 User description:
 {text}
 """
-
-        raw_string = await self.llm.generate(prompt)
+        raw_string = await self.llm.generate(prompt, response_schema=Graph)
 
         # Extract JSON block
         json_match = re.search(r"\{.*\}", raw_string, re.DOTALL)

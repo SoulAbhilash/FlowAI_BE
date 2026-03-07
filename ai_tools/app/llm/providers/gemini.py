@@ -1,10 +1,15 @@
+from typing import Type
+
+from annotated_types import T
 from google import genai
 from google.genai import errors
 import asyncio
 
 from ai_tools.app.llm.interface import LLMClient
+from ai_tools.app.llm.factory import register
 
 
+@register("gemini")
 class GeminiClient(LLMClient):
     provider_name = "gemini"
 
@@ -19,7 +24,8 @@ class GeminiClient(LLMClient):
         self.model = model
         self.retries = retries
 
-    async def generate(self, prompt: str) -> str:
+    async def generate(self, prompt: str, response_schema: Type[T]) -> Type[T]:
+        response_schema_json = response_schema.model_json_schema()
         if not prompt or not prompt.strip():
             raise ValueError("Prompt cannot be empty")
 
@@ -28,7 +34,12 @@ class GeminiClient(LLMClient):
         for attempt in range(self.retries):
             try:
                 response = await self.client.aio.models.generate_content(
-                    model=self.model, contents=prompt
+                    model=self.model,
+                    contents=prompt,
+                    config={
+                        "response_mime_type": "application/json",
+                        "response_json_schema": response_schema_json,
+                    },
                 )
 
                 # Validate response structure

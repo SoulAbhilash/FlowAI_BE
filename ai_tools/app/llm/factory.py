@@ -18,3 +18,11 @@ class LLMFactory:
             )
 
         return cls._registry[provider](**kwargs)
+
+
+def register(provider: str):
+    def decorator(cls):
+        LLMFactory.register(provider, cls)
+        return cls
+
+    return decorator
