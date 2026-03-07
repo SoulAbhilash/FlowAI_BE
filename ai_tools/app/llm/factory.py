@@ -1,5 +1,5 @@
-from client import OllamaClient, GeminiClient
-from interface import LLMClient
+from .client import OllamaClient, GeminiClient
+from .interface import LLMClient
 
 class LLMFactory:
 

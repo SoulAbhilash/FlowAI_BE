@@ -6,6 +6,5 @@ class GenerateFlow(BaseModel):
     provider: Literal["ollama", "gemini"]
     model: str
     api_key: str | None = None
-    prompt: str
     flow_name: str
     flow_steps: str
