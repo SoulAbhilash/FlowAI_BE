@@ -1,17 +1,20 @@
-from .client import OllamaClient, GeminiClient
+from typing import Callable, Dict
 from .interface import LLMClient
 
+
 class LLMFactory:
+    _registry: Dict[str, Callable[..., LLMClient]] = {}
 
-    @staticmethod
-    def create(provider: str, model: str, api_key: str | None) -> LLMClient:
-        if provider == "ollama":
-            return OllamaClient(model=model)
+    @classmethod
+    def register(cls, provider: str, creator: Callable[..., LLMClient]):
+        cls._registry[provider] = creator
 
-        elif provider == "gemini":
-            if not api_key:
-                raise ValueError("Gemini requires api_key")
-            return GeminiClient(api_key=api_key, model=model)
+    @classmethod
+    def create(cls, provider: str, **kwargs) -> LLMClient:
+        if provider not in cls._registry:
+            raise ValueError(
+                f"Unsupported provider: {provider}",
+                f"Available providers: [{', '.join(cls._registry.keys())}]",
+            )
 
-        else:
-            raise ValueError("Unsupported provider")
+        return cls._registry[provider](**kwargs)
