@@ -11,16 +11,16 @@ router = APIRouter(dependencies=[Depends(get_current_user)])
 async def generate_flow(request: GenerateFlow):
 
     llm = LLMFactory.create(
-        provider=request.provider,
-        model=request.model,
-        api_key=request.api_key,
+        provider=request.config.provider,
+        model=request.config.model,
+        api_key=request.config.api_key,
     )
 
     parser = FlowParser(llm=llm)
 
     json_flow = await parser.parse(
-        flow_name=request.flow_name,
-        text=request.flow_steps,
+        flow_name=request.prompt.flow_name,
+        text=request.prompt.flow_steps,
     )
 
     return json_flow

@@ -1,10 +1,12 @@
-# Pydantic models for request/response data
 from pydantic import BaseModel
-from typing import Literal
 
-class GenerateFlow(BaseModel):
-    provider: Literal["ollama", "gemini"]
-    model: str
-    api_key: str | None = None
+from app.schemas.ai_request import AIRequest
+
+
+class FlowData(BaseModel):
     flow_name: str
     flow_steps: str
+
+
+class GenerateFlow(AIRequest[FlowData]):
+    pass
